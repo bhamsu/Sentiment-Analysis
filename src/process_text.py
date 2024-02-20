@@ -60,3 +60,6 @@ class process_text_data:
         self.raw_data['stemmed_content'] = self.raw_data['text'].apply(self.stemming)
         print("Stemming operations completed...")
         return self.raw_data
+
+    def __del__(self):
+        pass
