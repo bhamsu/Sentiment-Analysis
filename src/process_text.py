@@ -5,6 +5,7 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
 
 class process_text_data:
     def __init__(self, raw_data):
@@ -12,6 +13,7 @@ class process_text_data:
         # print(self.raw_data)
         nltk.download('stopwords')
         self.port_stem = PorterStemmer()
+        self.snow_stemmer = SnowballStemmer(language = 'english')   # this stemmer requires a language parameter
 
     def drop_nan(self):
         # Checking and removing all the null values from dataset
@@ -38,7 +40,7 @@ class process_text_data:
         TAG_RE = re.compile(r'<[^>]+>')
         return TAG_RE.sub('', text)
 
-    def stemming(self, content):
+    def porter_stemming(self, content):
         # Stemming: It is a process of transforming each word into its Root word
         # example: actor, actress, acting -> act
 
@@ -54,10 +56,26 @@ class process_text_data:
         stemmed_content = ' '.join(stemmed_content)
         return stemmed_content
 
+    def snowball_stemming(self, content):
+        # Stemming: It is a process of transforming each word into its Root word
+        # example: actor, actress, acting -> act
+
+        stemmed_content = re.sub('[^a-zA-Z]', ' ', content)  # Removing Punctuations and numbers
+        stemmed_content = self.rm_htmlTags(stemmed_content)  # Removing HTML Tags
+        stemmed_content = self.lower(stemmed_content)  # Lower Casing all the words
+        stemmed_content = re.sub(r"\s+[a-zA-Z]\s+", ' ', stemmed_content)  # Removing Single characters
+        stemmed_content = re.sub(r'\s+', ' ', stemmed_content)  # Removing multiple spaces
+
+        # Removing stopwords and performing stemming
+        stemmed_content = stemmed_content.split()
+        stemmed_content = [self.snow_stemmer.stem(word) for word in stemmed_content if not word in stopwords.words('english')]
+        stemmed_content = ' '.join(stemmed_content)
+        return stemmed_content
+
     def __call__(self, *args, **kwargs):
         self.drop_nan()
         print("Starting stemming operations...")
-        self.raw_data['stemmed_content'] = self.raw_data['text'].apply(self.stemming)
+        self.raw_data['stemmed_content'] = self.raw_data['text'].apply(self.porter_stemming)
         print("Stemming operations completed...")
         return self.raw_data
 
