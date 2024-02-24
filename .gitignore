@@ -1,6 +1,7 @@
 # Large Data files
 data/training.1600000.processed.noemoticon.csv
 data/porter_stemmed_content.csv
+models/a2_glove.6B.100d.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
